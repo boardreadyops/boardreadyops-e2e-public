@@ -3,7 +3,7 @@
   (symbol
     (lib_id "Device:R")
     (property "Reference" "R1")
-    (property "Value" "10k")
+    (property "Value" "12k")
     (property "Footprint" "Resistor_SMD:R_0603")
     (property "Manufacturer" "Yageo")
     (property "MPN" "RC0603FR-0710KL")
