@@ -1,7 +1,7 @@
 (kicad_pcb
   (version 20250114)
   (title_block (title "safe-basic") (rev "v1.0"))
-  (gr_rect (start 0 0) (end 20 15) (layer "Edge.Cuts"))
+  (gr_rect (start 0 0) (end 10 10) (layer "Edge.Cuts"))
   (gr_text "REV2" (at 5 5) (layer "F.SilkS") (effects (font (size 1 1) (thickness 0.15))))
   (footprint "Resistor_SMD:R_0603"
     (property "Reference" "R1")
