@@ -95,7 +95,7 @@ jobs:
           fail-on: high
           upload-sarif: "false"
           comment-pr: "false"
-          annotations: "false"
+          upload-artifacts: "true"
           sarif: boardreadyops.sarif.json
           json: boardreadyops.findings.json
           markdown: boardreadyops.report.md
