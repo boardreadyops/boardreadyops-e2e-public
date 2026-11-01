@@ -105,6 +105,9 @@ jobs:
           EXECUTION_ATTEMPT_ID: ${{ inputs.execution_attempt_id }}
           RESULT_URL: ${{ inputs.result_url }}
           READINESS_OUTCOME: ${{ steps.readiness.outcome }}
+          HEAD_SHA: ${{ inputs.head_sha }}
+          SAFE_MODE: ${{ inputs.safe_mode }}
+          SAFE_MODE_REASONS: ${{ inputs.safe_mode_reasons }}
         with:
           script: |
             const fs = require("node:fs");
@@ -115,12 +118,36 @@ jobs:
                 resultPayload.findings = parsed.findings || [];
               }
             } catch {}
-            const token = await core.getIDToken();
-            await fetch(process.env.RESULT_URL, {
+            const runId = process.env.RUN_ID;
+            const attemptId = process.env.EXECUTION_ATTEMPT_ID;
+            const sha = process.env.HEAD_SHA;
+            const safe = process.env.SAFE_MODE === "true";
+            const trustMode = safe ? "safe" : "standard";
+            const reasons = process.env.SAFE_MODE_REASONS || "";
+            const audience = [
+              "boardreadyops-cloud", runId, attemptId, sha, trustMode, reasons || "none",
+            ].join(":");
+            const resultUrl = new URL(process.env.RESULT_URL);
+            if (resultUrl.origin !== "https://boardreadyops.com" ||
+                resultUrl.pathname !== "/api/v1/runs/github-actions-result" ||
+                resultUrl.searchParams.get("run_id") !== runId ||
+                resultUrl.searchParams.get("attempt_id") !== attemptId) {
+              throw new Error("Cloud result callback target is not the expected run and attempt");
+            }
+            const token = await core.getIDToken(audience);
+            const response = await fetch(resultUrl, {
               method: "POST",
-              headers: { "content-type": "application/json", authorization: `Bearer ${token}` },
+              headers: {
+                "content-type": "application/json",
+                authorization: `Bearer ${token}`,
+                "x-boardreadyops-trust-mode": trustMode,
+                "x-boardreadyops-safe-mode-reasons": reasons,
+              },
               body: JSON.stringify(resultPayload),
             });
+            if (!response.ok) {
+              throw new Error(`BoardReadyOps cloud result callback rejected: HTTP ${response.status}`);
+            }
 
   setup-probe:
     if: ${{ inputs.setup_probe_id != '' }}
