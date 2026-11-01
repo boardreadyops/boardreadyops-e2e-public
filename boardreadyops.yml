@@ -1,28 +1,26 @@
+# Golden demo - "fixed" board. Run: boardreadyops run examples/golden-demo/fixed
 version: 1
-mode: enforce
-releaseMode: pilot
 projects:
-  - path: .
-fail-on: high
+  - path: demo
+    bom: demo/demo-bom.csv
 rules:
-  bom.missing-mpn: true
-  bom.compliance: true
-  bom.lifecycle: true
-  bom.eol-detection: true
-  bom.unknown-lifecycle: true
-  bom.identity-conflicts: true
-  design.board-outline: true
-  design.unique-references: true
-  drc.kicad: true
-  manufacturing.fab-notes: true
-  manufacturing.layer-stackup: true
-  manufacturing.drill-coverage: true
-  release.revision-set: true
-  release.changelog-present: true
-  release.version-format: true
-  release.tag-matches-revision: true
-report:
-  sarif: boardreadyops.sarif.json
-  json: boardreadyops.findings.json
-  markdown: boardreadyops.report.md
-  html: boardreadyops.report.html
+  drc.kicad:
+    enabled: false
+  erc.kicad:
+    enabled: false
+  release.changelog-present:
+    enabled: false
+  release.revision-set:
+    enabled: false
+  manufacturing.fab-notes:
+    enabled: false
+  manufacturing.package-completeness:
+    enabled: false
+  design.copper-balance:
+    enabled: false
+  design.unique-references:
+    enabled: true
+  bom.compliance:
+    enabled: true
+    require: true
+fail-on: high
