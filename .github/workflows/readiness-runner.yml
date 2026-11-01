@@ -111,13 +111,31 @@ jobs:
         with:
           script: |
             const fs = require("node:fs");
-            let resultPayload = { status: process.env.READINESS_OUTCOME === "success" ? "passed" : "failed", findings: [] };
-            try {
-              if (fs.existsSync("boardreadyops.findings.json")) {
-                const parsed = JSON.parse(fs.readFileSync("boardreadyops.findings.json", "utf8"));
-                resultPayload.findings = parsed.findings || [];
+            const succeeded = process.env.READINESS_OUTCOME === "success";
+            const resultPayload = {
+              version: 1,
+              executionAttemptId: process.env.EXECUTION_ATTEMPT_ID,
+              status: succeeded ? "completed" : "failed",
+              decision: succeeded ? "pass" : "error",
+              findings: [],
+            };
+            if (fs.existsSync("boardreadyops.findings.json")) {
+              const parsed = JSON.parse(fs.readFileSync("boardreadyops.findings.json", "utf8"));
+              if (!Array.isArray(parsed.findings)) {
+                throw new Error("BoardReadyOps findings report must contain a findings array");
               }
-            } catch {}
+              resultPayload.findings = parsed.findings.map((finding) => ({
+                ruleId: finding.ruleId,
+                severity: finding.severity === "critical" ? "error" : finding.severity,
+                message: finding.message,
+                ...(typeof finding.resource?.path === "string"
+                  ? { path: finding.resource.path }
+                  : {}),
+              }));
+              if (!succeeded && resultPayload.findings.length > 0) {
+                resultPayload.decision = "fail";
+              }
+            }
             const runId = process.env.RUN_ID;
             const attemptId = process.env.EXECUTION_ATTEMPT_ID;
             const sha = process.env.HEAD_SHA;
