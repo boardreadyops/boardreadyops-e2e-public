@@ -93,6 +93,9 @@ jobs:
           mode: enforce
           require-kicad: "false"
           fail-on: high
+          upload-sarif: "false"
+          comment-pr: "false"
+          upload-artifacts: "true"
           sarif: boardreadyops.sarif.json
           json: boardreadyops.findings.json
           markdown: boardreadyops.report.md
