@@ -1,0 +1,30 @@
+name: Hardware PR release readiness
+on:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+jobs:
+  review:
+    name: BoardReadyOps hardware readiness
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout PR hardware
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
+      - name: Review PCB and BOM
+        uses: oaslananka/boardreadyops@5108c9fe16376c31b3acc23ea1101ae64bfa2fe4
+        with:
+          path: demo
+          config: boardreadyops.yml
+          mode: enforce
+          require-kicad: "false"
+          fail-on: high
+          upload-sarif: "false"
+          upload-artifacts: "true"
+          comment-pr: "true"
+          annotations: "true"
