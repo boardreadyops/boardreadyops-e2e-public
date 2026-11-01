@@ -87,7 +87,7 @@ jobs:
           BOARDREADYOPS_CLOUD_RUN_ID: ${{ inputs.run_id }}
         uses: oaslananka/boardreadyops@ce925376bd71daf7e07f31fb1bb19a8bde30b172 # v1.24.1
         with:
-          project: ${{ vars.BOARDREADYOPS_PROJECT || '' }}
+          path: demo
           config: ${{ vars.BOARDREADYOPS_CONFIG || 'boardreadyops.yml' }}
           safe-mode: ${{ inputs.safe_mode }}
           mode: enforce
