@@ -149,7 +149,7 @@
 	)
 	(segment
 		(start 18 12)
-		(end 38 12)
+		(end 38 17)
 		(width 0.25)
 		(layer "F.Cu")
 		(net "")
