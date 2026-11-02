@@ -2,7 +2,7 @@ version: 1
 mode: enforce
 releaseMode: pilot
 projects:
-  - path: .
+  - path: fixtures/native-review
 fail-on: high
 rules:
   bom.missing-mpn: true
