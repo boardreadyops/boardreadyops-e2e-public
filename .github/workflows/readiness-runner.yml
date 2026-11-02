@@ -78,6 +78,36 @@ jobs:
           ref: ${{ inputs.head_sha }}
           persist-credentials: false
 
+      - name: Verify exact target commit
+        env:
+          HEAD_SHA: ${{ inputs.head_sha }}
+        run: |
+          actual_sha="$(git rev-parse HEAD)"
+          if [ "$actual_sha" != "$HEAD_SHA" ]; then
+            echo "checkout SHA mismatch: expected $HEAD_SHA, got $actual_sha" >&2
+            exit 1
+          fi
+
+      - name: Install KiCad 10
+        id: kicad
+        run: |
+          sudo add-apt-repository --yes ppa:kicad/kicad-10.0-releases
+          sudo apt-get update -qq
+          sudo apt-get install --yes kicad
+          version="$(kicad-cli version)"
+          case "$version" in
+            10.0.*) ;;
+            *)
+              echo "Expected KiCad 10.0.*, got $version" >&2
+              exit 1
+              ;;
+          esac
+          if [ "${#version}" -gt 64 ] || ! [[ "$version" =~ ^10\.0\.[0-9]+([.+-][0-9A-Za-z.+-]+)?$ ]]; then
+            echo "KiCad version is not safely reportable" >&2
+            exit 1
+          fi
+          printf 'version=%s\n' "$version" >> "$GITHUB_OUTPUT"
+
       - name: Run BoardReadyOps
         id: readiness
         continue-on-error: true
@@ -85,13 +115,13 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           BOARDREADYOPS_PR_HEAD_SHA: ${{ inputs.head_sha }}
           BOARDREADYOPS_CLOUD_RUN_ID: ${{ inputs.run_id }}
-        uses: oaslananka/boardreadyops@ce925376bd71daf7e07f31fb1bb19a8bde30b172 # v1.24.1
+        uses: oaslananka/boardreadyops@6d3b721c3f8307a517d360b28f4d50b824d81278 # v1.24.1
         with:
           path: demo
           config: ${{ vars.BOARDREADYOPS_CONFIG || 'boardreadyops.yml' }}
           safe-mode: ${{ inputs.safe_mode }}
           mode: enforce
-          require-kicad: "false"
+          require-kicad: "true"
           fail-on: high
           upload-sarif: "false"
           comment-pr: "false"
