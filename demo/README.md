@@ -16,3 +16,7 @@ The BoardReadyOps generateSnapshots adapter should return nonempty kicad_native_
 After the main-branch readiness workflow installs KiCad 10 and enables `require-kicad: "true"`, a new PR head commit runs the source-matched hosted fixture. Validate that DRC and ERC actually executed (rather than reporting `kicad-cli-unavailable`), preserve intentional hardware blockers, and compare the observed revision with the GitHub Actions checkout SHA. The hosted workflow does not automatically publish Review SVG snapshots.
 
 The GitHub-hosted KiCad 10 acceptance job uses the Ubuntu 24.04 image rather than a moving `ubuntu-latest` label, so its tested CLI version is explicit and reproducible.
+
+## Hosted BOM evidence
+
+This synthetic fixture contains `demo/bom.csv` with a clearly artificial MPN and manufacturer. The GitHub-hosted readiness action publishes project-scoped component evidence; this test checks ingestion and Parts display, not real vendor availability or lifecycle claims. Intentional native KiCad DRC/ERC blockers remain release-blocking.
